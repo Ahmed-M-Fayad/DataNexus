@@ -1,0 +1,37 @@
+# DataNexus — GE Expectation Mappings
+# ─────────────────────────────────────────────────────
+# This file maps DataNexus check types (used in YAML validation configs)
+# to their Great Expectations method names.
+#
+# To add a new check type:
+#   1. Add a new line below in format:  check_type: ge_expectation_name
+#   2. Add the same entry to _FALLBACK_MAP in expectation_mapper.py
+#   3. If the check needs auto-injected kwargs, add to AUTO_KWARGS too
+# ─────────────────────────────────────────────────────
+
+# Completeness
+not_null:      expect_column_values_to_not_be_null
+completeness:  expect_column_values_to_not_be_null
+
+# Emptiness
+# not_empty catches "" AND "   " (whitespace-only strings) that not_null misses.
+# The regex ^\s*$ is auto-injected by get_auto_kwargs() in expectation_mapper.py
+# — the user never needs to supply it in their validation config.
+not_empty:     expect_column_values_to_not_match_regex
+
+# Accuracy
+regex:         expect_column_values_to_match_regex
+range:         expect_column_values_to_be_between
+in_set:        expect_column_values_to_be_in_set
+
+# Uniqueness
+unique:        expect_column_values_to_be_unique
+
+# Consistency
+# Both names do the same thing — foreign_key and referential_integrity are kept
+# as aliases so either name works in a validation config YAML.
+foreign_key:            expect_column_values_to_be_in_set
+referential_integrity:  expect_column_values_to_be_in_set
+
+# Timeliness
+freshness:     expect_column_values_to_be_between
