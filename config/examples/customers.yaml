@@ -1,0 +1,47 @@
+dataset: public.customers
+name: Customer Data Quality Checks
+description: Ensures customer records meet minimum quality standards.
+schedule_cron: '0 */6 * * *'
+alert_channels: [slack, email]
+quality_threshold: 85.0   # fail the run if quality score drops below 85
+
+checks:
+
+  - name: email_not_null
+    column: email
+    check_type: not_null
+    threshold: 0.95     # at least 95% of rows must have an email
+    severity: High
+
+  - name: email_format
+    column: email
+    check_type: regex
+    pattern: '^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$'
+    threshold: 0.99
+    severity: High
+
+  - name: email_unique
+    column: email
+    check_type: unique
+    threshold: 1.0      # every email must be unique
+    severity: Critical
+
+  - name: age_in_range
+    column: age
+    check_type: range
+    min_value: 18
+    max_value: 120
+    threshold: 1.0
+    severity: Medium
+
+  - name: status_valid
+    column: status
+    check_type: accepted_values
+    accepted_values: [active, inactive, pending]
+    threshold: 1.0
+    severity: High
+
+  - name: minimum_row_count
+    check_type: row_count
+    min_value: 1000     # table must contain at least 1 000 rows
+    severity: Critical
