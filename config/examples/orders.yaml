@@ -1,0 +1,44 @@
+dataset: public.orders
+name: Orders Data Quality Checks
+description: Validates order records for completeness and accuracy.
+schedule_cron: '0 0 * * *'
+alert_channels: [slack]
+quality_threshold: 90.0
+
+checks:
+
+  - name: order_id_not_null
+    column: order_id
+    check_type: not_null
+    threshold: 1.0
+    severity: Critical
+
+  - name: order_id_unique
+    column: order_id
+    check_type: unique
+    threshold: 1.0
+    severity: Critical
+
+  - name: amount_positive
+    column: amount
+    check_type: range
+    min_value: 0.01
+    severity: High
+
+  - name: status_valid
+    column: status
+    check_type: accepted_values
+    accepted_values: [pending, processing, shipped, delivered, cancelled, refunded]
+    threshold: 1.0
+    severity: High
+
+  - name: customer_id_not_null
+    column: customer_id
+    check_type: not_null
+    threshold: 1.0
+    severity: Critical
+
+  - name: minimum_daily_orders
+    check_type: row_count
+    min_value: 50
+    severity: Medium
