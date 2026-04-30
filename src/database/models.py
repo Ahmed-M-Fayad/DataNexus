@@ -224,8 +224,11 @@ class ValidationRun(Base):
     id              = Column(Integer, primary_key=True, autoincrement=True)
     config_id       = Column(Integer, ForeignKey("validation_configs.id",
                              ondelete="SET NULL"), nullable=True)
-    status          = Column(Enum(RunStatus), default=RunStatus.pending,
-                             nullable=False)
+    status = Column(
+        Enum(RunStatus, values_callable=lambda obj: [e.value for e in obj]), 
+        default=RunStatus.pending, 
+        nullable=False
+        )
     quality_score   = Column(Float, nullable=True)   # 0.0–100.0, set after run
     triggered_by    = Column(String(100), nullable=True)
     # e.g. "airflow", "api", "cli", "github_actions"
@@ -261,8 +264,10 @@ class ValidationResult(Base):
     check_name      = Column(String(255), nullable=False)
     column_name     = Column(String(255), nullable=True)
     check_type      = Column(String(100), nullable=False)
-    # e.g. "not_null", "range", "regex", "unique"
-    status          = Column(Enum(CheckStatus), nullable=False)
+    status = Column(
+        Enum(CheckStatus, values_callable=lambda obj: [e.value for e in obj]),
+        nullable=False
+        )    
     severity        = Column(Enum(Severity), nullable=False)
     expected_value  = Column(Text, nullable=True)  # what the rule expected
     actual_value    = Column(Text, nullable=True)  # what the data contained

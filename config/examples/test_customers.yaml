@@ -1,0 +1,36 @@
+# Integration test config — stored in validation_configs.config_yaml
+# Uses ValidationEngine's inline parser key names: min/max (NOT min_value/max_value)
+#
+# Test data shape (10 rows inserted by conftest fixture):
+#   - 2 rows have NULL email  → email_not_null  will FAIL (80% pass < threshold 0.95)
+#   - 1 row  has age = 200    → age_in_range     will PASS (90% pass >= threshold 0.85)
+#   - All ids are unique      → id_unique        will PASS (100% pass >= threshold 1.0)
+#
+# Expected run outcome:
+#   - 2 PASS checks, 1 FAIL check
+#   - quality_score = (0.75 + 0.50) / (0.95 + 0.75 + 0.50) × 100
+#                   = 1.25 / 2.20 × 100 ≈ 56.82
+#   - final status = FAIL (score 56.82 < threshold 80.0 → 0.80)
+
+dataset: test_data.test_customers
+
+checks:
+  - name: email_not_null
+    check_type: not_null
+    column: email
+    threshold: 0.95          # 95% of rows must have non-null email — will FAIL (80% pass)
+    severity: high
+
+  - name: age_in_range
+    check_type: range
+    column: age
+    min: 18
+    max: 120
+    threshold: 0.85          # 85% of rows must have age in [18, 120] — will PASS (90%)
+    severity: medium
+
+  - name: id_unique
+    check_type: unique
+    column: id
+    threshold: 1.0           # 100% of ids must be unique — will PASS
+    severity: critical

@@ -476,9 +476,14 @@ class ValidationEngine:
         # Persist the result row immediately, before moving to the next check
         self._write_result_row(run_id, check, raw, status, error_message=error_msg)
 
-        # Return the lightweight scored-result for ScoreCalculator
+        # Return the lightweight scored-result for ScoreCalculator.
+        # ── BUG FIX: was {"success": bool} — score_calculator reads "status" (str),
+        # not "success" (bool). Without this fix r.get("status", "error") defaults
+        # to "error" for every check, making passed_weight always 0 and the
+        # quality score always 0.0 regardless of actual results.
+        # status.value converts CheckStatus.pass_ → "pass", .fail → "fail", etc.
         return {
-            "success":  raw["success"],
+            "status":   status.value,
             "severity": check.get("severity", "low"),
         }
 
@@ -662,16 +667,21 @@ def _load_dataframe(
         return pd.read_parquet(connection_string)
 
     elif source_type in ("postgresql", "mysql"):
-        # Use a separate engine just for this read — don't reuse the app engine
+        # Use a separate engine just for this read — don't reuse the app engine.
+        # try/finally guarantees dispose() runs even if read_sql_table raises,
+        # so the connection pool is never left open after this function returns.
         from sqlalchemy import create_engine as _sa_engine    # noqa: PLC0415
         read_engine = _sa_engine(connection_string)
-        # pd.read_sql_table loads the entire table; for large tables this
-        # should be replaced with sampling in a future optimisation pass.
-        return pd.read_sql_table(
-            table_name  = table_name,
-            con         = read_engine,
-            schema      = schema_name,   # None is valid for the default schema
-        )
+        try:
+            # pd.read_sql_table loads the entire table; for large tables this
+            # should be replaced with sampling in a future optimisation pass.
+            return pd.read_sql_table(
+                table_name  = table_name,
+                con         = read_engine,
+                schema      = schema_name,   # None is valid for the default schema
+            )
+        finally:
+            read_engine.dispose()   # always close the pool — prevents connection leaks
 
     else:
         raise ValueError(

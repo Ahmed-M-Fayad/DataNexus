@@ -40,8 +40,8 @@ import pandas as pd
 from .column_stats      import compute
 from .pattern_detector  import detect
 
-from database.connection import get_db_session
-from database.models     import DataProfile
+from src.database import get_db_session
+from src.database.models import DataProfile
 
 
 class ProfilerEngine:
