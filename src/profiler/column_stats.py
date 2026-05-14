@@ -1,43 +1,7 @@
-"""
-column_stats.py
----------------
-Computes statistical profile for a single pandas Series (one column).
-Called by ProfilerEngine._profile_column() for every column in the dataset.
-
-Public interface
-----------------
-    compute(column: pd.Series) -> dict
-
-Output dict shape
------------------
-{
-    "null_pct":       float,   # percentage of null rows (0.0–100.0)
-    "distinct_count": int,     # number of unique non-null values
-    "min":            float | None,   # None for non-numeric columns
-    "max":            float | None,
-    "mean":           float | None,
-    "median":         float | None,
-}
-"""
-
 import pandas as pd
 
 
 def compute(column: pd.Series) -> dict:
-    """
-    Compute all column-level statistics in one call.
-
-    Returns a flat dict that ProfilerEngine merges directly into the column
-    profile. Numeric stats are None for non-numeric columns.
-
-    Parameters
-    ----------
-    column : one column from the dataset DataFrame
-
-    Returns
-    -------
-    dict matching the shape above — all keys always present.
-    """
     total      = len(column)
     null_count = int(column.isnull().sum())
 

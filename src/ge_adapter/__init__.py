@@ -1,3 +1,3 @@
-from .ge_adapter import GEAdapter 
+from .ge_adapter import GEAdapter
 
-__all__=["GEAdapter"]
+__all__ = ["GEAdapter"]
