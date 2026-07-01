@@ -23,7 +23,7 @@ if str(_PROJECT_ROOT) not in sys.path:
 
 from src.database import get_db_session
 from src.database.models import DataSource, Dataset
-from src.cli.formatting import print_table
+from src.cli.formatting import print_table, mask_connection_string
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -61,7 +61,7 @@ def sources_list(show_all: bool) -> None:
 
             rows = []
             for s in sources:
-                conn = (s.connection_string or "—")
+                conn = mask_connection_string(s.connection_string) or "—"
                 if len(conn) > 50:
                     conn = "…" + conn[-47:]
                 rows.append([

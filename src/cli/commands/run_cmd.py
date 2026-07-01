@@ -30,7 +30,7 @@ from src.database.models import (
 )
 from src.cli.formatting import (
     print_table, print_run_card, print_section,
-    status_label, severity_label, score_bar,
+    status_label, severity_label, score_bar, mask_connection_string,
 )
 
 
@@ -190,7 +190,7 @@ def profile_cmd(dataset_id: int) -> None:
     click.echo()
     click.echo(f"  DataNexus — Data Profiler")
     click.echo(f"  Dataset  : [{dataset_id}] {dataset_name}")
-    click.echo(f"  Source   : {source_type}  →  {connection_string or '(db table)'}")
+    click.echo(f"  Source   : {source_type}  →  {mask_connection_string(connection_string) or '(db table)'}")
     click.echo()
     click.echo("  Loading data...")
 

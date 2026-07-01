@@ -11,6 +11,22 @@ so this works in any environment the project runs in.
 """
 
 import shutil
+import re
+
+
+# ── Connection strings ─────────────────────────────────────────────────────────
+
+def mask_connection_string(conn: str) -> str:
+    """
+    Redact the password portion of a SQLAlchemy-style connection string
+    before it's ever printed to a terminal (e.g. during a live demo).
+
+    'postgresql://user:secret@host:5432/db' -> 'postgresql://user:***@host:5432/db'
+    Non-DB-URL strings (file paths, etc.) are returned unchanged.
+    """
+    if not conn:
+        return conn
+    return re.sub(r"(://[^:/@]+:)[^@]+(@)", r"\1***\2", conn)
 
 
 # ── Terminal width ─────────────────────────────────────────────────────────────
